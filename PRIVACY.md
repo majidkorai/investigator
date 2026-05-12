@@ -24,8 +24,11 @@ Mocking applies to **`fetch` / `XMLHttpRequest` in the page’s main JavaScript 
 
 ## Contact / updates
 
-Publishers should replace this section with a **support URL** or **contact email** before listing on the Chrome Web Store.
+**Email:** [majidkorai@gmail.com](mailto:majidkorai@gmail.com)
+
+**Source code:** [github.com/majidkorai/investigator](https://github.com/majidkorai/investigator)
 
 ## Open source
 
-If you distribute source code, link to your repository from the store listing so users can review behavior.
+If you distribute source code, link to your repository from the store listing so users can review behavior:  
+https://github.com/majidkorai/investigator

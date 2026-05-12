@@ -2,6 +2,8 @@
 
 Chrome extension (Manifest V3) for **mocking or blocking** `fetch` and `XMLHttpRequest` on pages you list. You define **rules** (URL substring / regex / glob, optional method, headers, query); the **first matching rule** wins (**lower priority number** runs first). Matching requests can return **mock JSON** (with optional delay and `{{template}}` placeholders) or **fail like a network error**.
 
+**Repository:** [github.com/majidkorai/investigator](https://github.com/majidkorai/investigator)
+
 **End-user documentation** lives in the extension: open **Settings** → **Help & topics** (collapsible sections). This README is for building, testing, packing, and publishing.
 
 ## Requirements
@@ -49,15 +51,24 @@ Pack output is gitignored under **`releases/`**. The zip root must contain `mani
 | `AGENTS.md` | Deeper technical notes for contributors / automation |
 | `PRIVACY.md` | Privacy summary for store listings and users |
 
-## Publishing (Chrome Web Store)
+## Publishing (Chrome Web Store — unlisted)
 
-Use **`RELEASE_CHECKLIST.md`** before each store upload or version tag.
+This extension is meant to be distributed as an **unlisted** item: it does **not** appear in store search, but anyone with the **direct listing link** can install it (after Google review).
 
-1. Run **`npm run pack`**.
-2. Upload the zip from **`releases/`** in the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole).
-3. Complete the listing (screenshots, permission justifications, etc.). Host **`PRIVACY.md`** (or equivalent) at a public URL if the dashboard requires a privacy policy link.
+1. Follow **`RELEASE_CHECKLIST.md`** (version bump, `npm test`, `npm run pack`).
+2. In the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole), create or update the item and upload the zip from **`releases/`**.
+3. Under **Distribution**, choose **Unlisted** (wording may vary slightly in the console).
+4. **Privacy policy URL** (required for listing):  
+   `https://github.com/majidkorai/investigator/blob/main/PRIVACY.md`
+5. Complete the rest of the form (screenshots, permission justifications, descriptions). Submit for review.
+6. After approval, copy the **Chrome Web Store listing URL** and share it with your team. Add that link here in the README in a follow-up commit if you want it documented next to the repo.
 
-Official flow: [Publish in the Chrome Web Store](https://developer.chrome.com/docs/webstore/publish).
+Official guide: [Publish in the Chrome Web Store](https://developer.chrome.com/docs/webstore/publish).
+
+## Repository & contact
+
+- **Source:** [github.com/majidkorai/investigator](https://github.com/majidkorai/investigator)  
+- **Contact:** [majidkorai@gmail.com](mailto:majidkorai@gmail.com)
 
 ## License / version
 
