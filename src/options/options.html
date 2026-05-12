@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Investigator — Settings</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="../icons/icon-32.png" />
+  <link rel="stylesheet" href="./options.css" />
+</head>
+<body>
+  <div class="layout-container">
+  <header class="header">
+    <h1>Investigator</h1>
+    <p class="subtitle">
+      Add the page URL for your app under <strong>App pages</strong>. When interception is on, Investigator runs on those tabs and can take over <code>fetch</code> and <code>XMLHttpRequest</code> from the page: each matching rule either returns <strong>mock JSON</strong> you configure (optionally after a delay) or <strong>blocks</strong> the call so it fails like a network error.
+    </p>
+    <p class="subtitle">
+      You define <strong>rules</strong> that match outgoing requests—the URL (substring, regex, or glob), plus optional method, headers, or query checks. Rules run in <strong>priority</strong> order; <strong>lower numbers run first</strong>, and the <strong>first rule that matches</strong> applies to that request.
+    </p>
+  </header>
+
+  <div class="page-body">
+    <div class="settings-column">
+  <section class="panel">
+    <h2>Master switch</h2>
+    <label class="switch">
+      <input type="checkbox" id="interceptionEnabled" />
+      <span>Intercept requests when rules match</span>
+    </label>
+    <label class="switch sub">
+      <input type="checkbox" id="interceptLog" />
+      <span>Log mocks in the page’s developer console (<code>[Investigator]</code>)</span>
+    </label>
+    <p class="hint" id="permHint"></p>
+  </section>
+
+  <section class="panel">
+    <h2>App pages (inject here)</h2>
+    <p class="hint">
+      One origin per line — the document where your SPA runs (e.g. <code>http://localhost:5173</code>),
+      not the API origin unless it is the same. Reload tabs after changing this list.
+    </p>
+    <textarea id="appOrigins" rows="5" placeholder="http://localhost:5173"></textarea>
+  </section>
+
+  <section class="panel">
+    <h2>Variables</h2>
+    <p class="hint">
+      Available in any rule response JSON as <code>{{vars.key}}</code> (e.g. <code>apiBase=https://api.dev</code> → <code>{{vars.apiBase}}</code>).
+    </p>
+    <textarea id="globalVars" rows="4" placeholder="apiBase=https://api.dev"></textarea>
+  </section>
+
+  <section class="panel">
+    <h2>Import from cURL</h2>
+    <p class="hint">
+      Paste a <code>curl</code> command. “Apply to tester” fills the rule tester; “Create rule” adds a substring rule for the URL (you can edit before Save).
+    </p>
+    <textarea id="curlInput" rows="4" placeholder="curl -H 'Authorization: Bearer x' https://api.example.com/v1/items"></textarea>
+    <div class="row" style="margin-top: 0.5rem">
+      <button type="button" id="curlToTester" class="btn secondary">Apply to tester</button>
+      <button type="button" id="curlToRule" class="btn secondary">Create rule from cURL</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Rule tester</h2>
+    <p class="hint">
+      Uses your <strong>current form values</strong> (click Save first to test saved rules).
+      Simulates “interception on” for matching only.
+    </p>
+    <div class="grid">
+      <div class="field">
+        <label for="dryMethod">Method</label>
+        <input type="text" id="dryMethod" value="GET" placeholder="GET" />
+      </div>
+      <div class="field">
+        <label for="dryBase">Base URL (for relative URLs)</label>
+        <input type="text" id="dryBase" placeholder="https://myapp.example.com/" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="dryUrl">Request URL</label>
+      <input type="text" id="dryUrl" placeholder="https://api.example.com/v1/items" />
+    </div>
+    <div class="field">
+      <label for="dryHeaders">Headers (optional, one per line: <code>Name: value</code>)</label>
+      <textarea id="dryHeaders" rows="3" placeholder="Authorization: Bearer test"></textarea>
+    </div>
+    <button type="button" id="dryRun" class="btn secondary">Run tester</button>
+    <pre id="dryResult" class="dry-result" aria-live="polite"></pre>
+  </section>
+
+  <section class="panel">
+    <div class="rules-header">
+      <h2>Rules</h2>
+      <button type="button" id="addRule" class="btn secondary">Add rule</button>
+    </div>
+    <div id="rules"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Backup</h2>
+    <p class="hint">Export your settings as JSON, or import a file from a teammate (replaces the current editor draft until you Save).</p>
+    <div class="row">
+      <button type="button" id="exportConfig" class="btn secondary">Export JSON</button>
+      <label class="file-btn">
+        <input type="file" id="importConfig" accept="application/json,.json" hidden />
+        <span class="btn secondary">Import JSON</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel privacy">
+    <h2>Privacy &amp; limitations</h2>
+    <ul class="privacy-list">
+      <li>
+        Investigator runs only on <strong>origins you approve</strong> and only injects the hook scripts listed under “App pages.”
+      </li>
+      <li>
+        Configuration and rules stay in <strong>chrome.storage.local</strong> on your device (not uploaded by this extension).
+      </li>
+      <li>
+        Mocking applies to <strong>page main context</strong> <code>fetch</code> / <code>XMLHttpRequest</code>.
+        Requests from <strong>service workers</strong>, <strong>web workers</strong>, <code>sendBeacon</code>, <code>EventSource</code>, or plain <code>&lt;img src&gt;</code> are not covered.
+      </li>
+      <li>
+        Response JSON may include placeholders such as <code>{{request.method}}</code>, <code>{{request.url}}</code>, <code>{{query.id}}</code>, <code>{{vars.apiBase}}</code>, <code>{{now.iso}}</code>, <code>{{now.epoch}}</code>, <code>{{now.ms}}</code>.
+      </li>
+      <li>
+        A rule can <strong>block</strong> a request (failed fetch / XHR error) instead of returning mock JSON.
+      </li>
+    </ul>
+  </section>
+
+  <footer class="footer">
+    <button type="button" id="save" class="btn">Save</button>
+    <span id="status" class="status" role="status"></span>
+  </footer>
+    </div>
+
+    <aside class="help-sidebar panel help" aria-labelledby="help-heading">
+    <h2 id="help-heading">Help</h2>
+    <p class="hint help-intro">
+      Topics for how Investigator works. Settings stay in <code>chrome.storage.local</code> on this device.
+    </p>
+
+    <details class="help-topic" id="help-getting-started">
+      <summary>Getting started</summary>
+      <div class="help-body">
+        <ol>
+          <li>Add your app’s document origin under <strong>App pages</strong> (one per line), e.g. <code>http://localhost:5173</code> or <code>https://myapp.example.com</code>.</li>
+          <li>Turn on <strong>Intercept requests when rules match</strong> (master switch).</li>
+          <li>Click <strong>Save</strong>. Approve the host permission prompt if Chrome shows it.</li>
+          <li>Add at least one <strong>rule</strong> that matches the API calls you want to mock or block, then <strong>Save</strong> again.</li>
+          <li><strong>Reload</strong> open tabs on those origins so the injected scripts run from the start of the page.</li>
+        </ol>
+        <p>The toolbar icon shows a blue dot when interception is on. Use the popup for a quick on/off toggle; full editing is on this settings page.</p>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-app-pages">
+      <summary>App pages — where scripts run</summary>
+      <div class="help-body">
+        <p>List the <strong>origin of the page</strong> that loads your UI (the SPA document), <em>not</em> necessarily the API hostname.</p>
+        <ul>
+          <li>Example: UI at <code>http://localhost:5173</code>, API at <code>http://localhost:3000</code> → put <code>http://localhost:5173</code> in App pages. Rules can still match requests to <code>localhost:3000</code>.</li>
+          <li>After changing App pages, <strong>reload</strong> tabs so injection runs at <code>document_start</code>.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-rules-priority">
+      <summary>Rules &amp; priority</summary>
+      <div class="help-body">
+        <ul>
+          <li><strong>Enabled</strong> rules are considered; disabled rules are ignored.</li>
+          <li><strong>Lower priority numbers run first</strong>. The <em>first</em> matching rule wins; remaining rules are not evaluated for that request.</li>
+          <li>Each rule must have <strong>at least one</strong> matcher among: URL pattern, method, header name, or query param name (see validation on Save).</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-url-matching">
+      <summary>URL matching (substring, regex, glob)</summary>
+      <div class="help-body">
+        <p><strong>URL pattern mode</strong></p>
+        <ul>
+          <li><strong>Substring</strong> — the pattern text must appear somewhere in the target string.</li>
+          <li><strong>Regex</strong> — JavaScript <code>RegExp</code> (no flags); tested with <code>.test(...)</code> on the target.</li>
+          <li><strong>Glob (full string)</strong> — <code>*</code> matches any run of characters, <code>?</code> matches one character; the whole target must match (implicit <code>^…$</code>).</li>
+        </ul>
+        <p><strong>Match: full URL</strong> uses the resolved request URL (scheme, host, path, query, etc.). <strong>Match: path + query only</strong> uses <code>pathname + search</code>, so you can ignore origin when matching.</p>
+        <p>Relative request URLs are resolved using the page’s location (or the rule tester’s <strong>Base URL</strong>).</p>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-method-headers-query">
+      <summary>Optional filters: method, headers, query</summary>
+      <div class="help-body">
+        <ul>
+          <li><strong>Method</strong> — if set, the request method must match (case-insensitive), e.g. <code>POST</code>.</li>
+          <li><strong>Header name</strong> — if set, that header must be present. <strong>Header value contains</strong> optionally requires a substring in the header value.</li>
+          <li><strong>Query param</strong> — if set, that query parameter must exist. <strong>Query value contains</strong> optionally requires a substring in its value.</li>
+        </ul>
+        <p>All specified parts must pass for the rule to match the URL pattern (and URL matching still applies).</p>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-mock-response">
+      <summary>Mock response: status, delay, JSON body</summary>
+      <div class="help-body">
+        <ul>
+          <li>Set <strong>On match</strong> to <strong>Return mock JSON</strong>.</li>
+          <li><strong>Response status</strong> is the HTTP statuscode callers see (e.g. 200, 404, 500).</li>
+          <li><strong>Delay (ms)</strong> waits up to that many milliseconds before resolving (clamped to 0–120000).</li>
+          <li><strong>Response JSON</strong> must be valid JSON. You can use <a href="#help-templates">templates</a> in string values.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-block">
+      <summary>Blocking requests</summary>
+      <div class="help-body">
+        <p>Set <strong>On match</strong> to <strong>Block request</strong>. The response body is ignored.</p>
+        <ul>
+          <li><strong>fetch</strong> — rejects with <code>AbortError</code> (similar to a network failure from the page’s perspective).</li>
+          <li><strong>XMLHttpRequest</strong> — triggers the error path with status <code>0</code>.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-templates">
+      <summary>Templates in JSON (<code>{{…}}</code>)</summary>
+      <div class="help-body">
+        <p>In any string inside the response JSON, placeholders are replaced at mock time:</p>
+        <ul>
+          <li><code>{{request.method}}</code>, <code>{{request.url}}</code> — outgoing request.</li>
+          <li><code>{{query.paramName}}</code> — query string value (empty if missing).</li>
+          <li><code>{{vars.name}}</code> — value from <strong>Variables</strong> (one per line as <code>name=value</code> or <code>name: value</code>; lines starting with <code>#</code> are comments).</li>
+          <li><code>{{now.iso}}</code> — UTC ISO timestamp; <code>{{now.epoch}}</code> — seconds; <code>{{now.ms}}</code> — milliseconds.</li>
+        </ul>
+        <p>Unknown placeholders become empty strings. Templates are applied recursively through objects and arrays.</p>
+        <p class="hint">The <strong>Rule tester</strong> shows stored JSON only — it does not expand templates.</p>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-tester">
+      <summary>Rule tester</summary>
+      <div class="help-body">
+        <ul>
+          <li>Uses the <strong>current form values</strong> in this page (including unsaved edits). Click <strong>Save</strong> first if you want to test exactly what is stored.</li>
+          <li>Forces interception on for the dry-run only and reports the <strong>first</strong> matching enabled rule.</li>
+          <li>Enter <strong>Request URL</strong> (and optional <strong>Base URL</strong> for relative URLs), method, and header lines as <code>Name: value</code>.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-curl">
+      <summary>Import from cURL</summary>
+      <div class="help-body">
+        <ul>
+          <li>Paste a command that starts with <code>curl</code> and includes a URL.</li>
+          <li><strong>Apply to tester</strong> fills method, URL, and headers into the rule tester.</li>
+          <li><strong>Create rule from cURL</strong> adds a new substring rule for the URL and method. If the command has <strong>exactly one</strong> header, it is copied into the rule’s optional header match fields for convenience — review before saving.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-backup">
+      <summary>Backup: export &amp; import JSON</summary>
+      <div class="help-body">
+        <ul>
+          <li><strong>Export JSON</strong> downloads your current editor state (flush edits by tabbing through rules or Save first).</li>
+          <li><strong>Import JSON</strong> replaces the <em>in-memory</em> editor from a file; you must <strong>Save</strong> to persist and refresh injected scripts.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-logging">
+      <summary>Console logging</summary>
+      <div class="help-body">
+        <p>When <strong>Log mocks in the page’s developer console</strong> is enabled, each matching rule writes an <code>[Investigator]</code> <code>console.info</code> line in that tab: either <strong>Mock</strong> (with HTTP status) or <strong>Block</strong> (aborted).</p>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-limitations">
+      <summary>What Investigator does <em>not</em> cover</summary>
+      <div class="help-body">
+        <p>Hooks run in the <strong>page’s main JavaScript world</strong> for <code>fetch</code> and <code>XMLHttpRequest</code> only. Not covered, for example:</p>
+        <ul>
+          <li>Requests from <strong>service workers</strong> or <strong>web workers</strong></li>
+          <li><code>sendBeacon</code>, <code>EventSource</code>, WebSockets, or resource loads like <code>&lt;img src&gt;</code></li>
+          <li>DevTools Network tab “real network” timing — mocks short-circuit before the browser hits the wire for matched requests</li>
+        </ul>
+        <p>See also <strong>Privacy &amp; limitations</strong> in the main column.</p>
+      </div>
+    </details>
+
+    <details class="help-topic" id="help-troubleshooting">
+      <summary>Troubleshooting</summary>
+      <div class="help-body">
+        <ul>
+          <li><strong>Nothing happens</strong> — Confirm the origin is under App pages, interception is on, a rule matches, and you <strong>reloaded</strong> the tab.</li>
+          <li><strong>Permission message</strong> — Save and approve host access; check the note under the master switch.</li>
+          <li><strong>Wrong rule wins</strong> — Lower <strong>priority</strong> runs first; narrow patterns or split rules.</li>
+          <li><strong>Save errors</strong> — Fix invalid JSON in a rule body, fix invalid regex patterns, and ensure each rule has at least one matcher.</li>
+        </ul>
+      </div>
+    </details>
+    </aside>
+
+  </div>
+  </div>
+
+  <script type="module" src="./options.ts"></script>
+</body>
+</html>
