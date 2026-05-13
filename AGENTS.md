@@ -14,10 +14,11 @@
 
 ## Documentation map
 
-- **`README.md`** — Human-oriented: install, scripts, layout, pack, publish links.
+- **`README.md`** — Human-oriented: install, scripts, layout, pack, publish (unlisted), [repo](https://github.com/majidkorai/investigator), contact email.
 - **`RELEASE_CHECKLIST.md`** — Pre-release and Chrome Web Store submission checklist.
 - **`PRIVACY.md`** — Privacy / permissions text for listings; update version line when shipping.
-- **`src/options/options.html`** — In-app **Help & topics** (`<details>`); keep accurate when behavior changes.
+- **Repository:** https://github.com/majidkorai/investigator
+- **`src/options/options.html`** — Settings UI: **two-column layout** (main column + sticky help sidebar) inside `.layout-container`; responsive via **`@container investigator`** + viewport fallbacks in `options.css`. In-app **Help & topics** (`<details>`); keep accurate when behavior changes.
 
 ## Load in Chrome
 
@@ -25,13 +26,15 @@
 
 ## Publish (store)
 
-Run **`npm run pack`**, upload the zip from **`releases/`**. See `README.md` and [Chrome Web Store publish](https://developer.chrome.com/docs/webstore/publish).
+Run **`npm run pack`**, upload the zip from **`releases/`**. Listing is **unlisted** (direct link only after approval). **Privacy policy URL:** `https://github.com/majidkorai/investigator/blob/main/PRIVACY.md`. **`manifest.json` `description`:** Chrome Web Store max **132 characters** — keep short or upload fails.
+
+See **`README.md`** and [Chrome Web Store publish](https://developer.chrome.com/docs/webstore/publish).
 
 ## Layout
 
 | Path | Role |
 |------|------|
-| `manifest.json` | MV3 manifest |
+| `manifest.json` | MV3 manifest; store **`description`** field max **132** chars |
 | `src/background/service-worker.ts` | Dynamic content scripts, badge, refresh queue |
 | `src/content/bridge.ts` | Isolated world → `postMessage` config |
 | `src/content/main-world.ts` | MAIN world hooks, delays, templates, optional `[Investigator]` console log |
@@ -43,7 +46,7 @@ Run **`npm run pack`**, upload the zip from **`releases/`**. See `README.md` and
 | `src/shared/curl-parse.ts` | Paste-a-cURL parser (options UI) |
 | `src/shared/config-store.ts` | Normalize / import |
 | `src/shared/match-patterns.ts` | App origin → Chrome match patterns |
-| `src/options/` | Settings, rule tester, import/export, cURL, in-app Help, privacy copy |
+| `src/options/` | Settings (two-column + help sidebar), rule tester, import/export, cURL, in-app Help |
 | `tests/` | Vitest |
 | `scripts/pack-extension.mjs` | Web Store zip from `dist/` → `releases/` |
 | `README.md` | Contributor / pack / publish overview |

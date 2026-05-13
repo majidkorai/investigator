@@ -57,11 +57,13 @@ This extension is meant to be distributed as an **unlisted** item: it does **not
 
 1. Follow **`RELEASE_CHECKLIST.md`** (version bump, `npm test`, `npm run pack`).
 2. In the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole), create or update the item and upload the zip from **`releases/`**.
-3. Under **Distribution**, choose **Unlisted** (wording may vary slightly in the console).
+3. In the left sidebar, open **Distribution** and set **Visibility** to **Unlisted** (not in store search; install via direct link). If you only see **email / web** fields, that is usually **support or privacy**, not visibility—use **Distribution** for Public / Unlisted / Private.
 4. **Privacy policy URL** (required for listing):  
    `https://github.com/majidkorai/investigator/blob/main/PRIVACY.md`
 5. Complete the rest of the form (screenshots, permission justifications, descriptions). Submit for review.
 6. After approval, copy the **Chrome Web Store listing URL** and share it with your team. Add that link here in the README in a follow-up commit if you want it documented next to the repo.
+
+**Note:** `manifest.json` **`description`** must be **≤132 characters** for the package upload to succeed (Chrome Web Store limit).
 
 Official guide: [Publish in the Chrome Web Store](https://developer.chrome.com/docs/webstore/publish).
 

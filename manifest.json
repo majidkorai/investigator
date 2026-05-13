@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Investigator",
   "version": "0.3.0",
-  "description": "On sites you list, intercept page fetch and XMLHttpRequest with rules—return mock JSON or block the request. Lower priority runs first; first match wins.",
+  "description": "Intercept fetch & XHR on listed sites with rules: mock JSON or block. Lower priority runs first; first match wins.",
   "icons": {
     "16": "src/icons/icon-16.png",
     "32": "src/icons/icon-32.png",
